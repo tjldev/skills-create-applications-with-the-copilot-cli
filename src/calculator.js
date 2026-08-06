@@ -1,73 +1,42 @@
 #!/usr/bin/env node
 
 /**
- * Node.js CLI Calculator
+ * calculator.js
  *
- * Supports the four basic arithmetic operations:
- *  - Addition       (+, add, plus)
- *  - Subtraction    (-, sub, minus)
- *  - Multiplication (*, x, mul, times)
- *  - Division       (/, div)  -- guards against division by zero
- *
- * Plus the following extended operations:
- *  - Modulo         (%, mod)          -- remainder of a divided by b
- *  - Exponentiation (^, **, pow)      -- base raised to the exponent
- *  - Square root    (sqrt)            -- unary operation, guards against negative input
+ * A simple Node.js CLI calculator supporting the four basic math operations:
+ *   - Addition:       a + b
+ *   - Subtraction:    a - b
+ *   - Multiplication: a * b
+ *   - Division:       a / b (includes handling for division by zero)
  *
  * Usage:
  *   node calculator.js <number> <operator> <number>
- *   node calculator.js sqrt <number>          (unary operation)
  *
  * Examples:
- *   node calculator.js 4 + 5
- *   node calculator.js 10 / 2
- *   node calculator.js 3 x 7
- *   node calculator.js 10 % 3
- *   node calculator.js 2 ^ 8
- *   node calculator.js sqrt 16
+ *   node calculator.js 5 + 3
+ *   node calculator.js 10 - 4
+ *   node calculator.js 6 x 7
+ *   node calculator.js 8 / 2
+ *
+ * Supported operators: +, -, *, x, /
  */
 
-// Maps accepted operator aliases to a single canonical symbol.
-const OPERATOR_ALIASES = {
-  '+': '+',
-  add: '+',
-  plus: '+',
-  '-': '-',
-  sub: '-',
-  minus: '-',
-  '*': '*',
-  x: '*',
-  X: '*',
-  mul: '*',
-  times: '*',
-  '/': '/',
-  div: '/',
-  '%': '%',
-  mod: '%',
-  '^': '^',
-  '**': '^',
-  pow: '^',
-};
-
-// Aliases that identify the unary square root operation.
-const SQRT_ALIASES = new Set(['sqrt', 'sqrt(', '√']);
-
-/** Addition: a + b */
+// Performs addition: a + b
 function add(a, b) {
   return a + b;
 }
 
-/** Subtraction: a - b */
+// Performs subtraction: a - b
 function subtract(a, b) {
   return a - b;
 }
 
-/** Multiplication: a * b */
+// Performs multiplication: a * b
 function multiply(a, b) {
   return a * b;
 }
 
-/** Division: a / b (throws on division by zero) */
+// Performs division: a / b, guarding against division by zero
 function divide(a, b) {
   if (b === 0) {
     throw new Error('Division by zero is not allowed.');
@@ -75,85 +44,24 @@ function divide(a, b) {
   return a / b;
 }
 
-/** Modulo: remainder of a divided by b (throws on division by zero) */
-function modulo(a, b) {
-  if (b === 0) {
-    throw new Error('Division by zero is not allowed.');
-  }
-  return a % b;
-}
-
-/** Exponentiation: base raised to the power of exponent */
-function power(base, exponent) {
-  return base ** exponent;
-}
-
-/** Square root: returns the square root of n (throws on negative input) */
-function squareRoot(n) {
-  if (n < 0) {
-    throw new Error('Cannot compute the square root of a negative number.');
-  }
-  return Math.sqrt(n);
-}
-
-/**
- * Performs the requested arithmetic operation on two numbers.
- * @param {number} a - The first operand.
- * @param {string} operator - One of +, -, *, / (or their aliases).
- * @param {number} b - The second operand.
- * @returns {number} The result of the operation.
- */
-function calculate(a, operator, b) {
-  const symbol = OPERATOR_ALIASES[operator];
-
-  switch (symbol) {
-    case '+':
-      return add(a, b);
-    case '-':
-      return subtract(a, b);
-    case '*':
-      return multiply(a, b);
-    case '/':
-      return divide(a, b);
-    case '%':
-      return modulo(a, b);
-    case '^':
-      return power(a, b);
-    default:
-      throw new Error(
-        `Unsupported operator "${operator}". Use one of: + - * / % ^ (or add, sub, mul, div, mod, pow).`
-      );
-  }
-}
+// Maps supported operator symbols to their corresponding function
+const operations = {
+  '+': add,
+  '-': subtract,
+  '*': multiply,
+  x: multiply,
+  X: multiply,
+  '/': divide,
+};
 
 function printUsage() {
   console.log('Usage: node calculator.js <number> <operator> <number>');
-  console.log('       node calculator.js sqrt <number>   (unary operation)');
-  console.log(
-    'Operators: + (add), - (subtract), * (multiply), / (divide), % (modulo), ^ (power), sqrt (square root)'
-  );
-  console.log('Example:   node calculator.js 4 + 5');
-  console.log('Example:   node calculator.js sqrt 16');
+  console.log('Supported operators: + (add), - (subtract), * or x (multiply), / (divide)');
+  console.log('Example: node calculator.js 5 + 3');
 }
 
-function main() {
-  const args = process.argv.slice(2);
-
-  // Unary square root: `node calculator.js sqrt <number>`
-  if (args.length === 2 && SQRT_ALIASES.has(args[0].toLowerCase())) {
-    const n = Number(args[1]);
-    if (Number.isNaN(n)) {
-      console.error('Error: operand must be a valid number.');
-      process.exit(1);
-    }
-    try {
-      console.log(squareRoot(n));
-    } catch (error) {
-      console.error(`Error: ${error.message}`);
-      process.exit(1);
-    }
-    return;
-  }
+function main(argv) {
+  const args = argv.slice(2);
 
   if (args.length !== 3) {
     printUsage();
@@ -165,22 +73,32 @@ function main() {
   const b = Number(rawB);
 
   if (Number.isNaN(a) || Number.isNaN(b)) {
-    console.error('Error: both operands must be valid numbers.');
+    console.error('Error: Both operands must be valid numbers.');
+    printUsage();
+    process.exit(1);
+  }
+
+  const operation = operations[operator];
+
+  if (!operation) {
+    console.error(`Error: Unsupported operator "${operator}".`);
+    printUsage();
     process.exit(1);
   }
 
   try {
-    const result = calculate(a, operator, b);
+    const result = operation(a, b);
     console.log(result);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
     process.exit(1);
   }
 }
 
-// Only run the CLI when this file is executed directly (not when imported/required).
+// Only run the CLI when this file is executed directly (not when required,
+// e.g. by the test suite).
 if (require.main === module) {
-  main();
+  main(process.argv);
 }
 
-module.exports = { add, subtract, multiply, divide, modulo, power, squareRoot, calculate };
+module.exports = { add, subtract, multiply, divide };
