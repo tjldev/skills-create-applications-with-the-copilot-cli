@@ -115,6 +115,10 @@ describe('divide', () => {
 });
 
 describe('modulo', () => {
+  test('5 % 2 = 1 (image example)', () => {
+    expect(modulo(5, 2)).toBe(1);
+  });
+
   test('10 % 3 = 1', () => {
     expect(modulo(10, 3)).toBe(1);
   });
@@ -127,12 +131,20 @@ describe('modulo', () => {
     expect(modulo(-10, 3)).toBe(-1);
   });
 
+  test('handles decimal operands', () => {
+    expect(modulo(5.5, 2)).toBeCloseTo(1.5);
+  });
+
   test('throws an error when modulo by zero', () => {
     expect(() => modulo(10, 0)).toThrow('Division by zero is not allowed.');
   });
 });
 
 describe('power', () => {
+  test('2 ^ 3 = 8 (image example)', () => {
+    expect(power(2, 3)).toBe(8);
+  });
+
   test('2 ^ 8 = 256', () => {
     expect(power(2, 8)).toBe(256);
   });
@@ -148,10 +160,14 @@ describe('power', () => {
   test('handles negative bases', () => {
     expect(power(-2, 3)).toBe(-8);
   });
+
+  test('handles fractional (root) exponents', () => {
+    expect(power(9, 0.5)).toBeCloseTo(3);
+  });
 });
 
 describe('squareRoot', () => {
-  test('sqrt(16) = 4', () => {
+  test('√16 = 4 (image example)', () => {
     expect(squareRoot(16)).toBe(4);
   });
 
@@ -163,8 +179,18 @@ describe('squareRoot', () => {
     expect(squareRoot(2)).toBeCloseTo(1.41421356);
   });
 
+  test('handles decimal input', () => {
+    expect(squareRoot(6.25)).toBeCloseTo(2.5);
+  });
+
   test('throws an error for negative input', () => {
     expect(() => squareRoot(-4)).toThrow(
+      'Cannot compute the square root of a negative number.'
+    );
+  });
+
+  test('throws an error for a small negative decimal', () => {
+    expect(() => squareRoot(-0.01)).toThrow(
       'Cannot compute the square root of a negative number.'
     );
   });
@@ -176,6 +202,8 @@ describe('calculate (operator dispatch)', () => {
     ['10', '-', '4', 6],
     ['45', '*', '2', 90],
     ['20', '/', '5', 4],
+    ['5', '%', '2', 1],
+    ['2', '^', '3', 8],
   ])('calculate(%s, %s, %s) = %d (image examples)', (a, op, b, expected) => {
     expect(calculate(Number(a), op, Number(b))).toBe(expected);
   });
