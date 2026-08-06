@@ -8,7 +8,7 @@
  * and division by zero).
  */
 
-const { add, subtract, multiply, divide, calculate } = require('../calculator');
+const { add, subtract, multiply, divide, modulo, power, squareRoot, calculate } = require('../calculator');
 
 describe('add', () => {
   test('2 + 3 = 5 (image example)', () => {
@@ -114,6 +114,62 @@ describe('divide', () => {
   });
 });
 
+describe('modulo', () => {
+  test('10 % 3 = 1', () => {
+    expect(modulo(10, 3)).toBe(1);
+  });
+
+  test('returns 0 when evenly divisible', () => {
+    expect(modulo(20, 5)).toBe(0);
+  });
+
+  test('handles negative dividend', () => {
+    expect(modulo(-10, 3)).toBe(-1);
+  });
+
+  test('throws an error when modulo by zero', () => {
+    expect(() => modulo(10, 0)).toThrow('Division by zero is not allowed.');
+  });
+});
+
+describe('power', () => {
+  test('2 ^ 8 = 256', () => {
+    expect(power(2, 8)).toBe(256);
+  });
+
+  test('any number to the power of 0 is 1', () => {
+    expect(power(5, 0)).toBe(1);
+  });
+
+  test('handles negative exponents', () => {
+    expect(power(2, -1)).toBeCloseTo(0.5);
+  });
+
+  test('handles negative bases', () => {
+    expect(power(-2, 3)).toBe(-8);
+  });
+});
+
+describe('squareRoot', () => {
+  test('sqrt(16) = 4', () => {
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test('sqrt(0) = 0', () => {
+    expect(squareRoot(0)).toBe(0);
+  });
+
+  test('handles non-perfect squares', () => {
+    expect(squareRoot(2)).toBeCloseTo(1.41421356);
+  });
+
+  test('throws an error for negative input', () => {
+    expect(() => squareRoot(-4)).toThrow(
+      'Cannot compute the square root of a negative number.'
+    );
+  });
+});
+
 describe('calculate (operator dispatch)', () => {
   test.each([
     ['2', '+', '3', 5],
@@ -135,8 +191,23 @@ describe('calculate (operator dispatch)', () => {
     expect(calculate(3, 'x', 7)).toBe(21);
   });
 
+  test('supports modulo via % and mod alias', () => {
+    expect(calculate(10, '%', 3)).toBe(1);
+    expect(calculate(10, 'mod', 3)).toBe(1);
+  });
+
+  test('supports exponentiation via ^, **, and pow alias', () => {
+    expect(calculate(2, '^', 8)).toBe(256);
+    expect(calculate(2, '**', 8)).toBe(256);
+    expect(calculate(2, 'pow', 8)).toBe(256);
+  });
+
+  test('throws on modulo by zero via calculate', () => {
+    expect(() => calculate(10, '%', 0)).toThrow('Division by zero is not allowed.');
+  });
+
   test('throws on an unsupported operator', () => {
-    expect(() => calculate(1, '%', 2)).toThrow(/Unsupported operator/);
+    expect(() => calculate(1, '@', 2)).toThrow(/Unsupported operator/);
   });
 
   test('throws on division by zero via calculate', () => {
