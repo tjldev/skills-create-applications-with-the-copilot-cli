@@ -10,3 +10,12 @@ Remember, it's self-paced so feel free to take a break! ☕️
 
 [![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/tjldev/skills-create-applications-with-the-copilot-cli/issues/1)
 
+## Calculator
+
+This repo includes a Node.js CLI calculator (`src/calculator.js`) with:
+
+- **Basic operations**: addition, subtraction, multiplication, division
+- **Expanded operations**: modulo, power (exponentiation), and square root
+
+Unit tests for all operations live in `src/tests/calculator.test.js`.
+
